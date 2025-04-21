@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online IDE</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/theme/dracula.min.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #1e1e1e;
+            color: #d4d4d4;
+            font-family: 'Consolas', monospace;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: 90vh;
+        }
+
+        .panel {
+            background-color: #2d2d2d;
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        select {
+            background: #3c3c3c;
+            color: white;
+            border: 1px solid #454545;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        button {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            align-self: flex-start;
+        }
+
+        button:hover {
+            background: #0062a3;
+        }
+
+        .CodeMirror {
+            flex: 1;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+
+        #output {
+            flex: 1;
+            background: #252526;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+
+        .error-line {
+            background: #4d1a1a !important;
+            border-left: 3px solid #ff5555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Online IDE</h1>
+    <div class="container">
+        <div class="panel">
+            <form method="POST">
+                <select name="language" id="languageSelect">
+                    {% for lang in language_map %}
+                    <option value="{{ lang }}" {% if language == lang %}selected{% endif %}>{{ lang|upper }}</option>
+                    {% endfor %}
+                </select>
+                <textarea id="codeEditor" name="code">{{ code }}</textarea>
+                <button type="submit">▶ Run</button>
+            </form>
+        </div>
+        <div class="panel">
+            <h3>Output</h3>
+            <pre id="output">{{ output }}</pre>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/python/python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.0/mode/clike/clike.min.js"></script>
+    <script>
+        const editor = CodeMirror.fromTextArea(document.getElementById('codeEditor'), {
+            lineNumbers: true,
+            theme: 'dracula',
+            mode: '{{ language_map[language].mode }}',
+            indentUnit: 4,
+            smartIndent: true,
+            extraKeys: {"Ctrl-Space": "autocomplete"}
+        });
+
+        const languageSelect = document.getElementById('languageSelect');
+        let currentLang = '{{ language }}';
+
+        languageSelect.addEventListener('change', function() {
+            const newLang = this.value;
+            if (confirm('Changing language will reset the editor. Continue?')) {
+                window.location.href = `/?language=${newLang}`;
+            } else {
+                this.value = currentLang;
+            }
+        });
+    </script>
+</body>
+</html>

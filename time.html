@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Task Manager with Voice</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 1.2s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.98); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 900px;
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 2rem;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .ai-sidebar {
+            background: rgba(245, 245, 245, 0.95);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            height: fit-content;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+        }
+
+        .voice-input {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .mic-button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .mic-button:hover {
+            color: #7f9cf5;
+        }
+
+        .mic-button.active {
+            color: #ef4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+
+        .main-form h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            color: #2d3748;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 1rem;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #7f9cf5;
+            box-shadow: 0 0 10px rgba(127, 156, 245, 0.4);
+            outline: none;
+        }
+
+        .datetime-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .submit-btn {
+            background: linear-gradient(to right, #6b73ff, #000dff);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(74, 108, 247, 0.4);
+        }
+
+        .ai-insight {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .category-chip {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 1rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .keyword-bubble {
+            display: inline-block;
+            background: #e2e8f0;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            margin: 0.25rem;
+            font-size: 0.8rem;
+        }
+
+        .work { background: #ebf4ff; color: #4299e1; }
+        .personal { background: #f0fff4; color: #48bb78; }
+        .health { background: #fff5f5; color: #f56565; }
+        .general { background: #f8fafc; color: #94a3b8; }
+
+        .loading-dots::after {
+            content: '.';
+            animation: dots 1.5s infinite step-end;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-form">
+            <h1>AI Task Manager 🎤🤖</h1>
+            <form id="taskForm" onsubmit="return handleSubmit(event)">
+                <div class="form-group voice-input">
+                    <label>Task Name</label>
+                    <input type="text" name="task" required>
+                    <button type="button" class="mic-button" onclick="startVoiceInput(this, 'task')">🎤</button>
+                </div>
+
+                <div class="form-group voice-input">
+                    <label>Description</label>
+                    <textarea name="description" rows="4" required
+                              oninput="updateAISuggestions(this.value)"></textarea>
+                    <button type="button" class="mic-button" onclick="startVoiceInput(this, 'description')">🎤</button>
+                </div>
+
+                <div class="form-group voice-input">
+                    <label>Due Date</label>
+                    <input type="date" name="due_date" required>
+                    <button type="button" class="mic-button" onclick="startVoiceInput(this, 'due_date')">🎤</button>
+                </div>
+
+                <div class="datetime-group">
+                    <div class="form-group voice-input">
+                        <label>Reminder Date</label>
+                        <input type="date" name="reminder_date" required>
+                        <button type="button" class="mic-button" onclick="startVoiceInput(this, 'reminder_date')">🎤</button>
+                    </div>
+                    <div class="form-group voice-input">
+                        <label>Reminder Time</label>
+                        <input type="time" name="reminder_time" required>
+                        <button type="button" class="mic-button" onclick="startVoiceInput(this, 'reminder_time')">🎤</button>
+                    </div>
+                </div>
+
+                <div class="form-group voice-input">
+                    <label>Email</label>
+                    <input type="email" name="email" required>
+                    <button type="button" class="mic-button" onclick="startVoiceInput(this, 'email')">🎤</button>
+                </div>
+
+                <button type="submit" class="submit-btn">Schedule Task 🚀</button>
+            </form>
+        </div>
+
+        <div class="ai-sidebar">
+            <h2>AI Insights 💡</h2>
+            <div id="aiSuggestions">
+                <div class="ai-insight">
+                    <h3>Task Category</h3>
+                    <p><span class="category-chip general loading-dots">Analyzing</span></p>
+                </div>
+                <div class="ai-insight">
+                    <h3>Suggested Due Date</h3>
+                    <p id="suggestedDate">--</p>
+                </div>
+                <div class="ai-insight">
+                    <h3>Priority Level</h3>
+                    <p id="priorityLevel"><span class="priority-indicator"></span>--</p>
+                </div>
+                <div class="ai-insight">
+                    <h3>Key Phrases</h3>
+                    <div class="keyword-bubbles" id="keywordsContainer"></div>
+                </div>
+                <div class="ai-insight">
+                    <h3>AI Recommendations</h3>
+                    <ul id="aiRecommendations"></ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Enhanced voice recognition
+        class VoiceHandler {
+            constructor() {
+                this.recognition = null;
+                this.currentField = null;
+            }
+
+            start(fieldName) {
+                this.currentField = document.querySelector(`[name="${fieldName}"]`);
+
+                if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+                    alert("Speech API not supported");
+                    return;
+                }
+
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                this.recognition = new SpeechRecognition();
+                this.recognition.continuous = false;
+                this.recognition.interimResults = false;
+
+                this.recognition.onresult = (e) => {
+                    const transcript = e.results[0][0].transcript;
+                    this.processTranscript(fieldName, transcript);
+                };
+
+                this.recognition.start();
+            }
+
+            processTranscript(field, text) {
+                const processors = {
+                    'due_date': this.processDate,
+                    'reminder_date': this.processDate,
+                    'reminder_time': this.processTime,
+                    'default': (t) => t
+                };
+
+                const processor = processors[field] || processors.default;
+                this.currentField.value = processor(text);
+
+                if(field === 'description') {
+                    updateAISuggestions(this.currentField.value);
+                }
+            }
+
+            processDate(text) {
+                const date = new Date();
+                text = text.toLowerCase();
+
+                if(text.includes('tomorrow')) date.setDate(date.getDate() + 1);
+                else if(text.includes('next week')) date.setDate(date.getDate() + 7);
+                else if(text.includes('next month')) date.setMonth(date.getMonth() + 1);
+                else if(/(\d+) days?/.test(text)) {
+                    const days = parseInt(text.match(/(\d+) days?/)[1]);
+                    date.setDate(date.getDate() + days);
+                }
+
+                return date.toISOString().split('T')[0];
+            }
+
+            processTime(text) {
+                const timeMatch = text.match(/(\d{1,2})(?::?(\d{2}))?\s?(am|pm)?/i);
+                if(!timeMatch) return '12:00';
+
+                let [_, hour, minute, period] = timeMatch;
+                hour = parseInt(hour);
+                minute = minute || '00';
+                period = period?.toLowerCase();
+
+                if(period === 'pm' && hour < 12) hour += 12;
+                if(period === 'am' && hour === 12) hour = 0;
+
+                return `${hour.toString().padStart(2, '0')}:${minute}`;
+            }
+        }
+
+        const voiceHandler = new VoiceHandler();
+
+        // Form handling
+        async function handleSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const btn = form.querySelector('button[type="submit"]');
+
+            try {
+                btn.disabled = true;
+                btn.innerHTML = 'Saving...';
+
+                const formData = new FormData(form);
+                const response = await fetch('/add', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if(!response.ok) throw new Error(await response.text());
+
+                alert('Task saved!');
+                form.reset();
+                resetUI();
+            } catch(err) {
+                alert(`Error: ${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Schedule Task 🚀';
+            }
+        }
+
+        // AI suggestions
+        let analysisTimeout;
+        async function updateAISuggestions(text) {
+            clearTimeout(analysisTimeout);
+
+            if(!text.trim()) {
+                resetUI();
+                return;
+            }
+
+            analysisTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch('/analyze', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ description: text })
+                    });
+
+                    const data = await response.json();
+                    updateUI(data);
+                } catch(err) {
+                    console.error('Analysis error:', err);
+                }
+            }, 500);
+        }
+
+        function updateUI(data) {
+            document.querySelector('.category-chip').className = `category-chip ${data.category}`;
+            document.getElementById('suggestedDate').textContent = data.suggested_date;
+            document.getElementById('priorityLevel').innerHTML = data.priority === 1
+                ? '🔥 High Priority'
+                : '⚡ Normal Priority';
+
+            document.getElementById('keywordsContainer').innerHTML = data.keywords
+                .map(k => `<div class="keyword-bubble">${k}</div>`)
+                .join('');
+
+            document.getElementById('aiRecommendations').innerHTML = data.recommendations
+                .map(r => `<li>${r}</li>`)
+                .join('');
+        }
+
+        function resetUI() {
+            document.querySelector('.category-chip').className = 'category-chip general';
+            document.getElementById('suggestedDate').textContent = '--';
+            document.getElementById('priorityLevel').innerHTML = '--';
+            document.getElementById('keywordsContainer').innerHTML = '';
+            document.getElementById('aiRecommendations').innerHTML = '';
+        }
+
+        // Initialize
+        document.getElementById('taskForm').addEventListener('submit', handleSubmit);
+        document.querySelectorAll('.mic-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const field = btn.parentElement.querySelector('input, textarea').name;
+                voiceHandler.start(field);
+            });
+        });
+    </script>
+</body>
+</html>

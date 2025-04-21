@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Productivity Assistant</title>
+    <style>
+        /* General Styles */
+        body {0
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Chat Container */
+        .chat-container {
+            width: 100%;
+            max-width: 600px;
+            height: 90vh;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+        }
+
+        /* Chat Header */
+        .chat-header {
+            background: linear-gradient(135deg, #6200ea, #3700b3);
+            color: white;
+            padding: 25px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 30px 30px 0 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Header Decorative Element */
+        .chat-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 70%);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            position: relative;
+        }
+
+        /* Message Bubbles */
+        .message {
+            display: flex;
+            align-items: flex-start;
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 25px;
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-message {
+            background: linear-gradient(135deg, #6200ea, #3700b3);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 10% 100%);
+        }
+
+        .ai-message {
+            background: rgba(224, 224, 224, 0.9);
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+            clip-path: polygon(0% 0%, 100% 0%, 90% 100%, 0% 100%);
+        }
+
+        .message img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 15px;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+        }
+
+        /* Chat Input */
+        .chat-input {
+            display: flex;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            position: relative;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 30px;
+            outline: none;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-input button {
+            background: linear-gradient(135deg, #6200ea, #3700b3);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            margin-left: 15px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scrollbar Styling */
+        .chat-messages::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        /* Unique Decorative Elements */
+        .chat-container::before {
+            content: '';
+            position: absolute;
+            top: -20%;
+            left: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05), transparent 70%);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        .chat-container::after {
+            content: '';
+            position: absolute;
+            bottom: -20%;
+            right: -20%;
+            width: 140%;
+            height: 140%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05), transparent 70%);
+            transform: rotate(-45deg);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            AI Productivity Assistant
+        </div>
+        <div class="chat-messages" id="chat-messages">
+            <!-- Messages will appear here -->
+        </div>
+        <div class="chat-input">
+            <input type="text" id="user-input" placeholder="Type your message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (!userInput.trim()) return;
+
+            // Add user message to chat
+            const userMessage = document.createElement("div");
+            userMessage.classList.add("message", "user-message");
+            userMessage.innerHTML = `
+                <img src="https://cdn-icons-png.flaticon.com/128/6009/6009978.png" alt="User">
+                <span>${userInput}</span>
+            `;
+            document.getElementById("chat-messages").appendChild(userMessage);
+
+            // Clear input
+            document.getElementById("user-input").value = "";
+
+            // Scroll to bottom
+            document.getElementById("chat-messages").scrollTop = document.getElementById("chat-messages").scrollHeight;
+
+            // Send message to backend
+            fetch("/ask", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ message: userInput }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Add AI response to chat
+                const aiMessage = document.createElement("div");
+                aiMessage.classList.add("message", "ai-message");
+                aiMessage.innerHTML = `
+                    <img src="https://cdn-icons-png.flaticon.com/128/2814/2814666.png" alt="AI">
+                    <span>${data.response}</span>
+                `;
+                document.getElementById("chat-messages").appendChild(aiMessage);
+
+                // Scroll to bottom
+                document.getElementById("chat-messages").scrollTop = document.getElementById("chat-messages").scrollHeight;
+            });
+        }
+
+        // Allow pressing Enter to send message
+        document.getElementById("user-input").addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

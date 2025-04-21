@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productivity Assistant - Home</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      background-image: url('https://cdn.impossibleimages.ai/wp-content/uploads/2023/04/25130031/AI-Background-Image-Generator-How-It-Works-and-Why-You-Need-It.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      min-height: 100vh;
+      color: white;
+      position: relative;
+    }
+
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.6);
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      z-index: 0;
+    }
+
+    nav {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 50px;
+      background-color: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      animation: slideDown 1.2s ease;
+    }
+
+    nav h1 {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 30px;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    nav ul li a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -4px;
+      width: 0;
+      height: 2px;
+      background: #00ffe0;
+      transition: 0.3s ease;
+    }
+
+    nav ul li a:hover::after {
+      width: 100%;
+    }
+
+    .hero, #about-section {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      margin-top: 15vh;
+      padding: 0 40px;
+      animation: fadeIn 2s ease;
+    }
+
+    .hero h2, #about-section h2 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 20px;
+      animation: pulse 2.5s infinite;
+    }
+
+    .hero p, #about-section p {
+      font-size: 22px;
+      max-width: 800px;
+      margin: 0 auto 30px;
+    }
+
+    .hero .buttons {
+      margin-top: 20px;
+    }
+
+    .hero .buttons button {
+      padding: 12px 25px;
+      margin: 0 10px;
+      font-size: 18px;
+      border: none;
+      border-radius: 30px;
+      background: #00ffe0;
+      color: #000;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hero .buttons button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 15px rgba(0, 255, 224, 0.5);
+    }
+
+    #about-section {
+      display: none;
+      padding-bottom: 60px;
+    }
+
+    footer {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+      padding: 25px;
+      background-color: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      margin-top: 60px;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes pulse {
+      0% { text-shadow: 0 0 10px #00ffe0, 0 0 20px #00ffe0; }
+      50% { text-shadow: 0 0 20px #00ffe0, 0 0 30px #00ffe0; }
+      100% { text-shadow: 0 0 10px #00ffe0, 0 0 20px #00ffe0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay"></div>
+
+  <nav>
+    <h1>ProdAssist</h1>
+    <ul>
+      <li><a id="home-link">Home</a></li>
+      <li><a id="about-link">About Us</a></li>
+      <li><a href="{{ url_for('login') }}">Login</a></li>
+      <li><a href="{{ url_for('register') }}">Sign Up</a></li>
+    </ul>
+  </nav>
+
+  <section class="hero" id="home-section">
+    <h2>Welcome to Your Productivity Assistant</h2>
+    <p>Organize your tasks, manage your time, and boost your productivity using AI-powered tools designed for your daily workflow.</p>
+    <div class="buttons">
+      <button onclick="window.location.href='{{ url_for('login') }}'">Get Started</button>
+      <button onclick="document.getElementById('about-link').click()">Learn More</button>
+    </div>
+  </section>
+
+  <section id="about-section">
+    <h2>About ProdAssist</h2>
+    <p>ProdAssist is an AI-powered Virtual Personal Productivity Assistant designed to help individuals and professionals manage their daily workflow efficiently.
+    With features like task management, goal tracking, time optimization, and smart reminders, ProdAssist aims to enhance your productivity and keep you focused on what matters most.</p>
+    <p>Our mission is to create a smart, intuitive tool that adapts to your work style and makes your day more organized and stress-free. Powered by artificial intelligence, ProdAssist learns your habits, provides insightful suggestions, and becomes your personal assistant in achieving your goals.</p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 ProdAssist. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const aboutLink = document.getElementById('about-link');
+    const homeLink = document.getElementById('home-link');
+    const aboutSection = document.getElementById('about-section');
+    const homeSection = document.getElementById('home-section');
+
+    aboutLink.addEventListener('click', function() {
+      aboutSection.style.display = 'block';
+      homeSection.style.display = 'none';
+    });
+
+    homeLink.addEventListener('click', function() {
+      aboutSection.style.display = 'none';
+      homeSection.style.display = 'block';
+    });
+  </script>
+</body>
+</html>

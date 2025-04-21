@@ -1,0 +1,317 @@
+<!-- templates/sm.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Study Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2A2F4F;
+            --secondary: #917FB3;
+            --accent: #E5BEEC;
+            --bg: #FDE2F3;
+            --text: #2A2F4F;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--bg) 0%, #ffffff 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5em;
+            position: relative;
+        }
+
+        h1:after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 3px;
+            background: var(--secondary);
+            margin: 15px auto;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 2rem;
+        }
+
+        input {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            border-color: var(--secondary);
+            box-shadow: 0 0 15px rgba(145, 127, 179, 0.3);
+        }
+
+        button {
+            padding: 15px 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        button:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .intro-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border-left: 5px solid var(--secondary);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .timeline {
+            color: var(--secondary);
+            font-size: 1.2em;
+            margin-bottom: 2rem;
+            text-align: center;
+            padding: 1rem;
+            background: rgba(233, 233, 233, 0.3);
+            border-radius: 10px;
+        }
+
+        .step-card {
+            background: white;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .step-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--accent);
+        }
+
+        .step-number {
+            background: var(--primary);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .resources {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(234, 234, 234, 0.3);
+            border-radius: 10px;
+        }
+
+        .tip {
+            background: var(--accent);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .tip::before {
+            content: "💡";
+            position: absolute;
+            left: -10px;
+            top: -10px;
+            font-size: 1.5em;
+        }
+
+        .error {
+            color: #dc3545;
+            padding: 1rem;
+            background: #ffe6e6;
+            border-radius: 10px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        #loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--primary);
+            display: none;
+        }
+
+        .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Smart Study Planner</h1>
+
+        <div class="input-group">
+            <input type="text" id="topicInput" placeholder="Enter any topic (e.g., 'Machine Learning', 'French History')">
+            <button onclick="generateContent()">
+                <i class="fas fa-magic"></i>
+                Generate Plan
+            </button>
+        </div>
+
+        <div id="loading">
+            <i class="fas fa-spinner"></i> Crafting your personalized learning journey...
+        </div>
+        <div id="content"></div>
+    </div>
+
+    <script>
+        async function generateContent() {
+            const topic = document.getElementById('topicInput').value.trim();
+            const contentDiv = document.getElementById('content');
+            const loading = document.getElementById('loading');
+
+            contentDiv.innerHTML = '';
+            if (!topic) return showError('Please enter a topic to begin');
+
+            loading.style.display = 'block';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topic })
+                });
+
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Failed to generate content');
+
+                renderContent(data);
+            } catch (error) {
+                showError(error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        function renderContent(data) {
+            const contentDiv = document.getElementById('content');
+            let html = `
+                <div class="intro-card">
+                    <h2>${data.introduction.overview}</h2>
+                    <div class="key-points">
+                        ${data.introduction.key_points.map(point => `
+                            <p>✓ ${point}</p>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="timeline">
+                    🕒 Estimated Total Duration: ${data.plan.timeline}
+                </div>
+            `;
+
+            html += data.plan.steps.map((step, index) => `
+                <div class="step-card">
+                    <div class="step-number">${index + 1}</div>
+                    <h3>${step.title}</h3>
+                    <p class="duration">⏳ ${step.duration}</p>
+                    <p>${step.description}</p>
+
+                    ${step.tip ? `
+                    <div class="tip">
+                        ${step.tip}
+                    </div>
+                    ` : ''}
+
+                    ${step.resources.length ? `
+                    <div class="resources">
+                        <h4><i class="fas fa-link"></i> Resources:</h4>
+                        <ul>
+                            ${step.resources.map(r => `
+                                <li>${isValidURL(r) ?
+                                    `<a href="${r}" target="_blank">${r} <i class="fas fa-external-link-alt"></i></a>` : r}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            contentDiv.innerHTML = html;
+        }
+
+        function showError(message) {
+            const contentDiv = document.getElementById('content');
+            contentDiv.innerHTML = `
+                <div class="error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    ${message}
+                </div>
+            `;
+        }
+
+        function isValidURL(str) {
+            try {
+                new URL(str);
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        // Handle Enter key
+        document.getElementById('topicInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') generateContent();
+        });
+    </script>
+</body>
+</html>

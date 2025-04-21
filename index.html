@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivity Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 350px;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Productivity Assistant</h2>
+        <form action="/" method="POST">
+            <input type="text" id="task" name="task" placeholder="Task Name" required>
+            <button type="button" onclick="startSpeechRecognition()">🎤 Speak</button>
+
+            <textarea name="description" placeholder="Task Description (Optional)"></textarea>
+
+            <input type="date" name="due_date" required>
+
+            <select name="priority">
+                <option value="High">High</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Low">Low</option>
+            </select>
+
+            <button type="submit">Add Task</button>
+        </form>
+    </div>
+
+    <script>
+        function startSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert("Your browser does not support speech recognition. Try Google Chrome.");
+                return;
+            }
+
+            var recognition = new webkitSpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function () {
+                console.log("Voice recognition started...");
+            };
+
+            recognition.onresult = function (event) {
+                var spokenText = event.results[0][0].transcript;
+                document.getElementById("task").value = spokenText;
+            };
+
+            recognition.onerror = function (event) {
+                console.error("Error in speech recognition: ", event.error);
+            };
+
+            recognition.start();
+        }
+    </script>
+</body>
+</html>

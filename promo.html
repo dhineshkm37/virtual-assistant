@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5; /* Simple light background */
+            color: #333; /* Dark text for contrast */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .task-input {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .task-input input {
+            padding: 10px 15px;
+            width: 300px;
+            border: 2px solid #6C63FF;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: box-shadow 0.3s ease-in-out;
+            background-color: #fff;
+            color: #333;
+        }
+
+        .task-input input:focus {
+            box-shadow: 0 0 10px #6C63FF;
+            outline: none;
+        }
+
+        .timer-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+        }
+
+        .timer-circle {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .timer-background {
+            fill: none;
+            stroke: #e0e0e0; /* Light gray for the background circle */
+            stroke-width: 15;
+        }
+
+        .timer-progress {
+            fill: none;
+            stroke: #6C63FF; /* Purple for the progress circle */
+            stroke-width: 15;
+            stroke-linecap: round;
+            transform: rotate(-90deg);
+            transform-origin: center;
+            transition: stroke-dashoffset 0.3s;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .time {
+            font-size: 3.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333; /* Dark text for the timer */
+        }
+
+        .mode-label {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            color: #666; /* Gray for the mode label */
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: none;
+            background-color: #6C63FF; /* Purple for buttons */
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background-color: #5a53d6; /* Darker purple on hover */
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: #e94560; /* Red for the primary button */
+        }
+
+        .btn-primary:hover {
+            background-color: #d13551; /* Darker red on hover */
+        }
+
+        .modes {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            background-color: #e0e0e0; /* Light gray for mode buttons */
+            color: #333; /* Dark text for mode buttons */
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background-color: #6C63FF; /* Purple for active mode */
+            color: white;
+        }
+
+        .stats {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            color: #666; /* Gray for stats text */
+        }
+
+        .stats span {
+            color: #6C63FF; /* Purple for the completed count */
+            font-weight: bold;
+        }
+
+        .motivational-message {
+            margin-top: 15px;
+            font-style: italic;
+            color: #6C63FF; /* Purple for motivational message */
+        }
+
+        @media (max-width: 500px) {
+            .timer-container {
+                width: 250px;
+                height: 250px;
+            }
+
+            .time {
+                font-size: 2.5rem;
+            }
+
+            .btn {
+                width: 50px;
+                height: 50px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="task-input">
+            <input type="text" id="taskName" placeholder="Enter your task here">
+        </div>
+
+        <div class="modes">
+            <button class="mode-btn active" data-mode="pomodoro">Pomodoro</button>
+            <button class="mode-btn" data-mode="shortBreak">Short Break</button>
+            <button class="mode-btn" data-mode="longBreak">Long Break</button>
+        </div>
+
+        <div class="timer-container">
+            <svg class="timer-circle" viewBox="0 0 100 100">
+                <!-- Background circle -->
+                <circle class="timer-background" cx="50" cy="50" r="45"></circle>
+                <!-- Progress circle -->
+                <circle class="timer-progress" cx="50" cy="50" r="45" stroke-dasharray="283" stroke-dashoffset="0"></circle>
+            </svg>
+
+            <div class="timer-text">
+                <div class="time" id="time">25:00</div>
+                <div class="mode-label" id="mode-label">Focus Time</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" id="reset-btn">
+                <i>↺</i>
+            </button>
+            <button class="btn btn-primary" id="start-btn">
+                <i id="start-icon">▶</i>
+            </button>
+            <button class="btn" id="sound-btn">
+                <i id="sound-icon">🔊</i>
+            </button>
+        </div>
+
+        <div class="stats">
+            Completed Pomodoros: <span id="completed-count">0</span>
+        </div>
+
+        <div class="motivational-message" id="motivation">Stay focused and crush your goals!</div>
+    </div>
+
+    <audio id="notification-sound" preload="auto">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-alarm-digital-clock-beep-989.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Timer settings
+            const timerSettings = {
+                pomodoro: 25 * 60, // 25 minutes in seconds
+                shortBreak: 5 * 60, // 5 minutes in seconds
+                longBreak: 15 * 60, // 15 minutes in seconds
+            };
+
+            // DOM elements
+            const timeDisplay = document.getElementById('time');
+            const modeLabel = document.getElementById('mode-label');
+            const startBtn = document.getElementById('start-btn');
+            const startIcon = document.getElementById('start-icon');
+            const resetBtn = document.getElementById('reset-btn');
+            const soundBtn = document.getElementById('sound-btn');
+            const soundIcon = document.getElementById('sound-icon');
+            const completedCount = document.getElementById('completed-count');
+            const modeBtns = document.querySelectorAll('.mode-btn');
+            const timerProgress = document.querySelector('.timer-progress');
+            const notificationSound = document.getElementById('notification-sound');
+            const taskInput = document.getElementById('taskName');
+            const motivationMessage = document.getElementById('motivation');
+
+            // Timer variables
+            let currentMode = 'pomodoro';
+            let timeLeft = timerSettings[currentMode];
+            let isActive = false;
+            let timerInterval = null;
+            let completedPomodoros = 0;
+            let soundEnabled = true;
+
+            // Format time as MM:SS
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60);
+                const secs = seconds % 60;
+                return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+
+            // Update timer display
+            function updateDisplay() {
+                timeDisplay.textContent = formatTime(timeLeft);
+
+                // Update progress circle
+                const totalTime = timerSettings[currentMode];
+                const progress = (totalTime - timeLeft) / totalTime;
+                const circumference = 2 * Math.PI * 45; // 45 is the radius
+                const offset = circumference * (1 - progress);
+                timerProgress.style.strokeDashoffset = offset;
+            }
+
+            // Start/pause timer
+            function toggleTimer() {
+                if (isActive) {
+                    clearInterval(timerInterval);
+                    startIcon.textContent = '▶';
+                } else {
+                    startIcon.textContent = '⏸';
+
+                    timerInterval = setInterval(() => {
+                        if (timeLeft > 0) {
+                            timeLeft--;
+                            updateDisplay();
+                        } else {
+                            handleTimerComplete();
+                        }
+                    }, 1000);
+                }
+
+                isActive = !isActive;
+            }
+
+            // Reset timer
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timeLeft = timerSettings[currentMode];
+                isActive = false;
+                startIcon.textContent = '▶';
+                updateDisplay();
+            }
+
+            // Handle timer completion
+            function handleTimerComplete() {
+                clearInterval(timerInterval);
+                isActive = false;
+                startIcon.textContent = '▶';
+
+                if (soundEnabled) {
+                    notificationSound.play().catch(err => console.error("Audio play failed:", err));
+                }
+
+                if (currentMode === 'pomodoro') {
+                    completedPomodoros++;
+                    completedCount.textContent = completedPomodoros;
+
+                    // After 4 pomodoros, suggest a long break
+                    if (completedPomodoros % 4 === 0) {
+                        switchMode('longBreak');
+                        motivationMessage.textContent = "Great work! Take a long break.";
+                    } else {
+                        switchMode('shortBreak');
+                        motivationMessage.textContent = "Great work! Take a short break.";
+                    }
+                } else {
+                    switchMode('pomodoro');
+                    motivationMessage.textContent = "Let’s focus again! You got this!";
+                }
+            }
+
+            // Switch timer mode
+            function switchMode(mode) {
+                currentMode = mode;
+                timeLeft = timerSettings[mode];
+
+                // Update active button
+                modeBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+
+                // Update mode label
+                if (mode === 'pomodoro') {
+                    modeLabel.textContent = 'Focus Time';
+                } else if (mode === 'shortBreak') {
+                    modeLabel.textContent = 'Short Break';
+                } else {
+                    modeLabel.textContent = 'Long Break';
+                }
+
+                resetTimer();
+            }
+
+            // Toggle sound
+            function toggleSound() {
+                soundEnabled = !soundEnabled;
+                soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
+            }
+
+            // Event listeners
+            startBtn.addEventListener('click', toggleTimer);
+            resetBtn.addEventListener('click', resetTimer);
+            soundBtn.addEventListener('click', toggleSound);
+
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    switchMode(btn.dataset.mode);
+                });
+            });
+
+            // Initialize
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>

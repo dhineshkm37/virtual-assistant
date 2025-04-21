@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Voice Music Player</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 100px;
+      background-color: #f8f9fa;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    #micBtn {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+      font-size: 32px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #micBtn:hover {
+      background-color: #0056b3;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-size: 18px;
+      color: green;
+    }
+
+    audio {
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎤 Voice Controlled Music Player</h1>
+  <button id="micBtn">🎙️</button>
+  <div id="status">Click the mic and say: "play bigil", etc.</div>
+
+  <audio id="audioPlayer" controls style="display:none;">
+    <source id="audioSource" src="" type="audio/mp3">
+    Your browser does not support the audio element.
+  </audio>
+
+  <script>
+    const micBtn = document.getElementById('micBtn');
+    const status = document.getElementById('status');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const audioSource = document.getElementById('audioSource');
+
+    micBtn.addEventListener('click', () => {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      status.innerText = "🎧 Listening...";
+
+      recognition.start();
+
+      recognition.onresult = function(event) {
+        const speechText = event.results[0][0].transcript.toLowerCase();
+        console.log("You said:", speechText);
+        status.innerText = `You said: "${speechText}"`;
+
+        if (speechText.includes("play")) {
+          const songName = speechText.replace("play", "").trim().toLowerCase();
+          const filePath = `static/music/${songName}.mp3`;
+
+          audioSource.src = filePath;
+          audioPlayer.load();
+          audioPlayer.style.display = "block";
+          audioPlayer.play();
+
+          status.innerText = `🎵 Playing: ${songName}.mp3`;
+        } else {
+          status.innerText = "Say 'play songname'";
+        }
+      };
+
+      recognition.onerror = function(event) {
+        status.innerText = "Error: " + event.error;
+      };
+    });
+  </script>
+
+</body>
+</html>

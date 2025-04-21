@@ -1,0 +1,147 @@
+<!-- templates/time.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Task Manager</title>
+    <style>
+        /* Add these new styles to existing CSS */
+        .voice-response-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .voice-response-btn {
+            background: #4a6cf7;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .voice-response-btn:hover {
+            background: #3b5bdb;
+            transform: translateY(-1px);
+        }
+
+        .voice-response-btn.active {
+            background: #f56565;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(245, 101, 101, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(245, 101, 101, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 101, 101, 0); }
+        }
+
+        .ai-voice-status {
+            font-size: 0.8rem;
+            color: #4a5568;
+            margin-top: 0.5rem;
+        }
+    </style>
+    <!-- Include Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Previous content remains same -->
+
+        <div class="ai-sidebar">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>AI Insights 💡</h2>
+                <button class="voice-response-btn" id="voiceResponseBtn">
+                    <i class="fas fa-volume-up"></i>
+                    Read Aloud
+                </button>
+            </div>
+            <div class="ai-voice-status" id="voiceStatus"></div>
+            <!-- Rest of AI insights remains same -->
+        </div>
+    </div>
+
+    <script>
+        // Add text-to-speech functionality
+        let synth = window.speechSynthesis;
+        let isSpeaking = false;
+        let utterance = null;
+
+        function speakAIInsights() {
+            const insights = {
+                category: document.querySelector('.category-chip').textContent,
+                dueDate: document.getElementById('suggestedDate').textContent,
+                priority: document.getElementById('priorityLevel').textContent,
+                recommendations: document.getElementById('aiRecommendations').textContent
+            };
+
+            const text = `
+                Task Category: ${insights.category}.
+                Suggested Due Date: ${insights.dueDate}.
+                Priority Level: ${insights.priority}.
+                Recommendations: ${insights.recommendations.replace(/\n/g, ', ')}.
+            `;
+
+            if (synth.speaking) {
+                synth.cancel();
+            }
+
+            utterance = new SpeechSynthesisUtterance(text);
+            utterance.voice = window.speechSynthesis.getVoices().find(voice => voice.name.includes('English'));
+            utterance.pitch = 1;
+            utterance.rate = 1;
+            utterance.volume = 1;
+
+            utterance.onstart = () => {
+                isSpeaking = true;
+                document.getElementById('voiceResponseBtn').classList.add('active');
+                document.getElementById('voiceStatus').textContent = "AI is speaking...";
+            };
+
+            utterance.onend = () => {
+                isSpeaking = false;
+                document.getElementById('voiceResponseBtn').classList.remove('active');
+                document.getElementById('voiceStatus').textContent = "";
+            };
+
+            utterance.onerror = (err) => {
+                console.error('Speech error:', err);
+                document.getElementById('voiceStatus').textContent = "Error in speech synthesis";
+            };
+
+            synth.speak(utterance);
+        }
+
+        // Voice response button handler
+        document.getElementById('voiceResponseBtn').addEventListener('click', () => {
+            if (!isSpeaking) {
+                speakAIInsights();
+            } else {
+                synth.cancel();
+            }
+        });
+
+        // Update the speak function when AI insights change
+        function updateAISuggestions(description) {
+            // Existing analysis code
+
+            // Update voice response when new insights come
+            if (isSpeaking) {
+                synth.cancel();
+                speakAIInsights();
+            }
+        }
+
+        // Initialize voices
+        window.speechSynthesis.onvoiceschanged = () => {
+            // Voices loaded
+        };
+
+        // Existing voice input and other code remains same
+    </script>
+</body>
+</html>

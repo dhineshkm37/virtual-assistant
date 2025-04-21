@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Reminder</title>
+</head>
+<body>
+    <h2>Task Reminder Form</h2>
+
+    <form method="post">
+        <label>Email:</label>
+        <input type="email" name="email" required><br><br>
+
+        <label>Task Name:</label>
+        <input type="text" name="task" required><br><br>
+
+        <label>Description:</label>
+        <textarea name="description"></textarea><br><br>
+
+        <label>Reminder Time:</label>
+        <input type="datetime-local" name="reminder_time" required><br><br>
+
+        <button type="submit">Add Task</button>
+    </form>
+</body>
+</html>

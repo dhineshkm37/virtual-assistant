@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Goal Manager</title>
+    <style>
+        :root {
+            --primary: #1a1f3c;
+            --accent: #00ffe0;
+            --background: rgba(255, 255, 255, 0.05);
+            --neon-glow: 0 0 15px var(--accent);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1f3c 0%, #0d1021 100%);
+            color: white;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 2rem;
+        }
+
+        .goal-form {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .goal-form:hover {
+            transform: translateY(-5px);
+        }
+
+        .goal-form::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0,255,224,0.1), transparent);
+            animation: animate 6s linear infinite;
+        }
+
+        @keyframes animate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .goal-list {
+            display: grid;
+            gap: 1.5rem;
+            perspective: 1000px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+            text-shadow: var(--neon-glow);
+        }
+
+        input, textarea, select, .progress-container {
+            width: 100%;
+            padding: 0.8rem;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: white;
+            margin-top: 0.3rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            box-shadow: var(--neon-glow);
+            border-color: var(--accent);
+        }
+
+        .ai-suggestions {
+            background: var(--background);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .goal-card {
+            background: var(--background);
+            padding: 1.5rem;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .goal-card:hover {
+            transform: translateY(-5px) rotateX(5deg) rotateY(5deg);
+            box-shadow: var(--neon-glow);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #00ff88);
+            width: 30%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: scanning 2s infinite linear;
+        }
+
+        @keyframes scanning {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .priority-indicator {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+
+        button {
+            background: var(--accent);
+            color: var(--primary);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--neon-glow);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: animate 6s linear infinite;
+        }
+
+        .ai-loading {
+            display: none;
+            text-align: center;
+            padding: 1rem;
+            color: var(--accent);
+            animation: pulse 1.5s infinite;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Goal Creation Form -->
+        <div class="goal-form">
+            <h2>🎯 Set New Goal</h2>
+            <form id="goalForm">
+                <div class="form-group">
+                    <label for="goalTitle">Goal Title</label>
+                    <input type="text" id="goalTitle" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="goalDescription">Description</label>
+                    <textarea id="goalDescription" rows="3"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="goalDeadline">Target Deadline</label>
+                    <input type="date" id="goalDeadline" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Priority</label>
+                    <div class="priority-select">
+                        <select id="goalPriority">
+                            <option value="high">High 🔥</option>
+                            <option value="medium">Medium ⚖️</option>
+                            <option value="low">Low 🌱</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Progress</label>
+                    <div class="progress-container">
+                        <input type="range" id="goalProgress" min="0" max="100" value="0">
+                        <span id="progressValue">0%</span>
+                    </div>
+                </div>
+
+                <button type="submit">Save Goal</button>
+            </form>
+
+            <!-- AI Suggestions -->
+            <div class="ai-suggestions">
+                <h3>🤖 AI Suggestions</h3>
+                <button onclick="getAISuggestions()">Generate Smart Goals</button>
+                <div class="ai-loading" id="aiLoading">Analyzing patterns...</div>
+                <div id="aiSuggestions"></div>
+            </div>
+        </div>
+
+        <!-- Goal List -->
+        <div class="goal-list" id="goalList">
+            <!-- Goals will be dynamically inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // Goal Management
+        let goals = JSON.parse(localStorage.getItem('goals')) || [];
+
+        // Form Submission
+        document.getElementById('goalForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const newGoal = {
+                id: Date.now(),
+                title: document.getElementById('goalTitle').value,
+                description: document.getElementById('goalDescription').value,
+                deadline: document.getElementById('goalDeadline').value,
+                priority: document.getElementById('goalPriority').value,
+                progress: document.getElementById('goalProgress').value,
+                created: new Date().toISOString()
+            };
+
+            goals.push(newGoal);
+            saveGoals();
+            renderGoals();
+            e.target.reset();
+        });
+
+        // Progress Update
+        document.getElementById('goalProgress').addEventListener('input', (e) => {
+            document.getElementById('progressValue').textContent = `${e.target.value}%`;
+        });
+
+        // Render Goals
+        function renderGoals() {
+            const goalList = document.getElementById('goalList');
+            goalList.innerHTML = goals.map(goal => `
+                <div class="goal-card">
+                    <div class="priority-indicator ${goal.priority}">${goal.priority.toUpperCase()}</div>
+                    <h3>${goal.title}</h3>
+                    ${goal.description ? `<p>${goal.description}</p>` : ''}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${goal.progress}%"></div>
+                    </div>
+                    <div class="goal-meta">
+                        <span>📅 ${new Date(goal.deadline).toLocaleDateString()}</span>
+                        <span>${goal.progress}% Complete</span>
+                    </div>
+                    <div class="goal-actions">
+                        <button onclick="updateProgress(${goal.id}, 25)">25%</button>
+                        <button onclick="updateProgress(${goal.id}, 50)">50%</button>
+                        <button onclick="updateProgress(${goal.id}, 75)">75%</button>
+                        <button onclick="deleteGoal(${goal.id})">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // AI Suggestions
+        async function getAISuggestions() {
+            const aiLoading = document.getElementById('aiLoading');
+            const suggestionsDiv = document.getElementById('aiSuggestions');
+
+            aiLoading.style.display = 'block';
+            suggestionsDiv.innerHTML = '';
+
+            // Simulated AI API call
+            setTimeout(() => {
+                const suggestions = [
+                    "Increase monthly savings by 15%",
+                    "Complete 3 online courses this quarter",
+                    "Exercise 4 times weekly",
+                    "Read 1 book per month"
+                ];
+
+                aiLoading.style.display = 'none';
+                suggestionsDiv.innerHTML = suggestions.map(suggestion => `
+                    <div class="suggestion">
+                        ${suggestion}
+                        <button onclick="useSuggestion('${suggestion}')">Use</button>
+                    </div>
+                `).join('');
+            }, 1500);
+        }
+
+        function useSuggestion(text) {
+            document.getElementById('goalTitle').value = text;
+            document.getElementById('goalDescription').focus();
+        }
+
+        // Helper Functions
+        function updateProgress(id, progress) {
+            goals = goals.map(goal =>
+                goal.id === id ? {...goal, progress} : goal
+            );
+            saveGoals();
+            renderGoals();
+        }
+
+        function deleteGoal(id) {
+            goals = goals.filter(goal => goal.id !== id);
+            saveGoals();
+            renderGoals();
+        }
+
+        function saveGoals() {
+            localStorage.setItem('goals', JSON.stringify(goals));
+        }
+
+        // Initial Render
+        renderGoals();
+    </script>
+</body>
+</html>

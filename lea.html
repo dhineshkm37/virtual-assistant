@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Leaderboard</title>
+</head>
+<body>
+    <h2>🏆 Task Leaderboard</h2>
+    <table border="1">
+        <tr>
+            <th>Email</th>
+            <th>Total Points</th>
+        </tr>
+        {% for user in leaders %}
+        <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

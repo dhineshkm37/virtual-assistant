@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quiz Results</title>
+    <style>
+        :root {
+            --primary-color: #2A2F4F;
+            --secondary-color: #917FB3;
+            --background-color: #FDE2F3;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background-color: var(--background-color);
+            min-height: 100vh;
+        }
+
+        .result-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .result-badge {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 2.5rem;
+        }
+
+        .score-display {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 2rem;
+        }
+
+        .recommendations {
+            text-align: left;
+            margin-top: 2rem;
+        }
+
+        .recommendations h3 {
+            color: var(--secondary-color);
+            margin-bottom: 1rem;
+        }
+
+        .recommendations ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .recommendations li {
+            padding: 1rem;
+            margin: 0.5rem 0;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-dashboard {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-dashboard:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="result-container">
+        <div class="result-badge" style="background: {{ result.color }}">
+            {{ result.type.split()[-1] }}
+        </div>
+
+        <h1>{{ result.type }}</h1>
+        <div class="score-display">
+            Score: {{ score }}/{{ max_score }}
+        </div>
+
+        <div class="recommendations">
+            <h3>Personalized Recommendations</h3>
+            <ul>
+                {% for recommendation in result.recommendations %}
+                <li>
+                    <span class="emoji">📌</span>
+                    {{ recommendation }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a href="{{ url_for('dashboard') }}" class="btn-dashboard">
+            Return to Dashboard
+        </a>
+    </div>
+</body>
+</html>

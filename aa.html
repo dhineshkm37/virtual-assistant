@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Task Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Container */
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 1200px;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+
+        @media (min-width: 1024px) {
+            body {
+                padding: 2rem;
+            }
+            .container {
+                grid-template-columns: 1fr 350px;
+                padding: 2rem;
+            }
+        }
+
+        /* Typography */
+        h1, h2 {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            margin-bottom: 1.5rem;
+            color: #1f2937;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #1f2937;
+        }
+
+        h3 {
+            font-size: 0.875rem;
+            color: #4b5563;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #4f46e5, #7e22ce);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .label-with-icon {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        .date-time-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (min-width: 768px) {
+            .date-time-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* Button */
+        button {
+            width: 100%;
+            background: linear-gradient(to right, #4f46e5, #7e22ce);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* AI Sidebar */
+        .ai-sidebar {
+            background-color: #f9fafb;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .ai-insights {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .insight-card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        /* Category chips */
+        .category-chip {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .analyzing {
+            background-color: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .work {
+            background-color: #dbeafe;
+            color: #2563eb;
+        }
+
+        .personal {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+
+        .health {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+
+        /* Priority styles */
+        .priority-high {
+            color: #ef4444;
+        }
+
+        .priority-normal {
+            color: #f59e0b;
+        }
+
+        /* Recommendations */
+        .recommendations-list {
+            list-style-type: none;
+        }
+
+        .recommendations-list li {
+            position: relative;
+            padding-left: 1rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            color: #374151;
+        }
+
+        .recommendations-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+        }
+
+        /* Icons */
+        .icon {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            stroke: #6366f1;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .icon-large {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        /* Space utilities */
+        .space-y-5 > * + * {
+            margin-top: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="main-form">
+            <h1>
+                <span class="gradient-text">AI Task Manager</span>
+                <svg class="icon icon-large" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                </svg>
+            </h1>
+            
+            <form id="taskForm" class="space-y-5">
+                <div class="form-group">
+                    <label for="task">Task Name</label>
+                    <input type="text" id="task" name="task" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="due_date" class="label-with-icon">
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Due Date
+                    </label>
+                    <input type="date" id="due_date" name="due_date" required>
+                </div>
+
+                <div class="date-time-grid">
+                    <div class="form-group">
+                        <label for="remind_date" class="label-with-icon">
+                            <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                <line x1="16" y1="2" x2="16" y2="6"></line>
+                                <line x1="8" y1="2" x2="8" y2="6"></line>
+                                <line x1="3" y1="10" x2="21" y2="10"></line>
+                            </svg>
+                            Reminder Date
+                        </label>
+                        <input type="date" id="remind_date" name="remind_date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="remind_time" class="label-with-icon">
+                            <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            Reminder Time
+                        </label>
+                        <input type="time" id="remind_time" name="remind_time" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email" class="label-with-icon">
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                        Email
+                    </label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+
+                <button type="submit">
+                    <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="16"></line>
+                        <line x1="8" y1="12" x2="16" y2="12"></line>
+                    </svg>
+                    Schedule Task
+                </button>
+            </form>
+        </div>
+
+        <div class="ai-sidebar">
+            <h2>
+                <span class="gradient-text">AI Insights</span>
+                <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                </svg>
+            </h2>
+            
+            <div id="aiSuggestions" class="ai-insights">
+                <div class="insight-card">
+                    <h3>
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                            <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                        </svg>
+                        Task Category
+                    </h3>
+                    <p>
+                        <span id="categoryChip" class="category-chip analyzing">Analyzing...</span>
+                    </p>
+                </div>
+                
+                <div class="insight-card">
+                    <h3>
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                        Suggested Due Date
+                    </h3>
+                    <p id="suggestedDate" class="font-medium">--</p>
+                </div>
+                
+                <div class="insight-card">
+                    <h3>
+                        <svg class="icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                        </svg>
+                        Priority Level
+                    </h3>
+                    <p id="priorityLevel" class="font-medium">--</p>
+                </div>
+                
+                <div class="insight-card">
+                    <h3>AI Recommendations</h3>
+                    <ul id="recommendationsList" class="recommendations-list">
+                        <li>Start typing to see suggestions</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State variables
+        let aiSuggestions = {
+            category: "analyzing",
+            suggested_date: "--",
+            priority: 0,
+            recommendations: ["Start typing to see suggestions"]
+        };
+
+        // DOM elements
+        const descriptionInput = document.getElementById('description');
+        const taskForm = document.getElementById('taskForm');
+        const categoryChip = document.getElementById('categoryChip');
+        const suggestedDate = document.getElementById('suggestedDate');
+        const priorityLevel = document.getElementById('priorityLevel');
+        const recommendationsList = document.getElementById('recommendationsList');
+
+        // Event listeners
+        descriptionInput.addEventListener('input', function() {
+            updateAISuggestions(this.value);
+        });
+
+        taskForm.addEventListener('submit', function(event) {
+            handleSubmit(event);
+        });
+
+        // Functions
+        async function updateAISuggestions(description) {
+            if (!description.trim()) {
+                aiSuggestions = {
+                    category: "analyzing",
+                    suggested_date: "--",
+                    priority: 0,
+                    recommendations: ["Start typing to see suggestions"]
+                };
+                updateUI();
+                return;
+            }
+            
+            try {
+                // Simulate API call for demo purposes
+                setTimeout(() => {
+                    const mockResponse = {
+                        category: description.includes("meeting") ? "work" : 
+                                description.includes("gym") ? "health" : "personal",
+                        suggested_date: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toLocaleDateString(),
+                        priority: description.includes("urgent") ? 1 : 0,
+                        recommendations: [
+                            "Break this task into smaller subtasks",
+                            "Consider delegating parts of this task",
+                            "Schedule focused time blocks for this task"
+                        ]
+                    };
+                    aiSuggestions = mockResponse;
+                    updateUI();
+                }, 500);
+            } catch (error) {
+                console.error('AI analysis error:', error);
+            }
+        }
+
+        function updateUI() {
+            // Update category chip
+            categoryChip.className = `category-chip ${aiSuggestions.category}`;
+            categoryChip.textContent = aiSuggestions.category === "analyzing" 
+                ? "Analyzing..." 
+                : aiSuggestions.category.charAt(0).toUpperCase() + aiSuggestions.category.slice(1);
+            
+            // Update suggested date
+            suggestedDate.textContent = aiSuggestions.suggested_date;
+            
+            // Update priority level
+            if (aiSuggestions.priority === 1) {
+                priorityLevel.innerHTML = '<span class="priority-high">🔥 High Priority</span>';
+            } else {
+                priorityLevel.innerHTML = '<span class="priority-normal">⚡ Normal Priority</span>';
+            }
+            
+            // Update recommendations
+            recommendationsList.innerHTML = '';
+            aiSuggestions.recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                recommendationsList.appendChild(li);
+            });
+        }
+
+        async function handleSubmit(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            try {
+                // Simulate API call for demo purposes
+                setTimeout(() => {
+                    alert("Task scheduled successfully!");
+                    event.target.reset();
+                    aiSuggestions = {
+                        category: "analyzing",
+                        suggested_date: "--",
+                        priority: 0,
+                        recommendations: ["Start typing to see suggestions"]
+                    };
+                    updateUI();
+                }, 500);
+            } catch (error) {
+                alert('Error submitting task');
+                console.error('Submission error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

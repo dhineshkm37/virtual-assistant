@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Meeting Room - {{ room_id }}</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background-color: #000;
+        }
+        #jitsi-container {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div id="jitsi-container"></div>
+
+    <script src='https://meet.jit.si/external_api.js'></script>
+    <script>
+        const domain = "meet.jit.si";
+        const options = {
+            roomName: "{{ room_id }}",
+            width: "100%",
+            height: "100%",
+            parentNode: document.getElementById('jitsi-container'),
+            userInfo: {
+                displayName: "Your Name"
+            }
+        };
+        const api = new JitsiMeetExternalAPI(domain, options);
+    </script>
+</body>
+</html>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productivity Quiz</title>
+    <style>
+        :root {
+            --primary: #2A2F4F;
+            --secondary: #917FB3;
+            --bg: #FDE2F3;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            padding: 2rem;
+            background: var(--bg);
+            min-height: 100vh;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .question-card {
+            padding: 1.5rem;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            margin: 1rem 0;
+        }
+
+        .option {
+            display: block;
+            padding: 1rem;
+            margin: 0.5rem 0;
+            border-radius: 10px;
+            background: #f8f9fa;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .option:hover {
+            transform: translateX(10px);
+            background: var(--secondary);
+            color: white;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin-top: 1rem;
+        }
+
+        .result-card {
+            text-align: center;
+            padding: 3rem;
+        }
+
+        .badge {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 2rem auto;
+            font-size: 2rem;
+        }
+
+        #timer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div id="timer">10:00</div>
+    <div class="quiz-container" id="quiz-container"></div>
+
+    <script>
+        const questions = [
+        {
+            id: 1,
+            question: "🕒 How do you prioritize tasks?",
+            options: [
+                { text: "Eisenhower Matrix", score: 3 },
+                { text: "Deadline proximity", score: 2 },
+                { text: "Random selection", score: 1 }
+            ]
+        },
+        {
+            id: 2,
+            question: "⏳ Break frequency?",
+            options: [
+                { text: "Pomodoro technique", score: 3 },
+                { text: "When tired", score: 2 },
+                { text: "Rarely", score: 1 }
+            ]
+        },
+        {
+            id: 3,
+            question: "📅 Weekly planning?",
+            options: [
+                { text: "Time blocking", score: 3 },
+                { text: "Basic to-do list", score: 2 },
+                { text: "No planning", score: 1 }
+            ]
+        },
+        {
+            id: 4,
+            question: "🎯 Goal setting method?",
+            options: [
+                { text: "SMART goals", score: 3 },
+                { text: "General ideas", score: 2 },
+                { text: "No formal goals", score: 1 }
+            ]
+        },
+        {
+            id: 5,
+            question: "📧 Email management?",
+            options: [
+                { text: "Scheduled times", score: 3 },
+                { text: "Check occasionally", score: 2 },
+                { text: "Constant checking", score: 1 }
+            ]
+        },
+        {
+            id: 6,
+            question: "🤔 Handling interruptions?",
+            options: [
+                { text: "Time buffer system", score: 3 },
+                { text: "Address immediately", score: 2 },
+                { text: "Get distracted", score: 1 }
+            ]
+        },
+        {
+            id: 7,
+            question: "📚 Learning new skills?",
+            options: [
+                { text: "Structured schedule", score: 3 },
+                { text: "When motivated", score: 2 },
+                { text: "Rarely learn", score: 1 }
+            ]
+        },
+        {
+            id: 8,
+            question: "⏰ Morning routine?",
+            options: [
+                { text: "Structured ritual", score: 3 },
+                { text: "Basic preparation", score: 2 },
+                { text: "No routine", score: 1 }
+            ]
+        },
+        {
+            id: 9,
+            question: "📉 Handling procrastination?",
+            options: [
+                { text: "Eat the frog method", score: 3 },
+                { text: "Partial progress", score: 2 },
+                { text: "Last-minute rush", score: 1 }
+            ]
+        },
+        {
+            id: 10,
+            question: "🗂 Workspace organization?",
+            options: [
+                { text: "Minimalist system", score: 3 },
+                { text: "Moderately organized", score: 2 },
+                { text: "Consistently cluttered", score: 1 }
+            ]
+        },
+        {
+            id: 11,
+            question: "🧠 Mental breaks?",
+            options: [
+                { text: "Mindfulness practice", score: 3 },
+                { text: "Social media scroll", score: 2 },
+                { text: "No breaks", score: 1 }
+            ]
+        },
+        {
+            id: 12,
+            question: "📊 Progress tracking?",
+            options: [
+                { text: "Daily review system", score: 3 },
+                { text: "Weekly check-ins", score: 2 },
+                { text: "No tracking", score: 1 }
+            ]
+        },
+        {
+            id: 13,
+            question: "💪 Health management?",
+            options: [
+                { text: "Scheduled exercise", score: 3 },
+                { text: "Irregular workouts", score: 2 },
+                { text: "No exercise", score: 1 }
+            ]
+        },
+        {
+            id: 14,
+            question: "🤝 Delegation habits?",
+            options: [
+                { text: "Strategic delegation", score: 3 },
+                { text: "Occasional delegation", score: 2 },
+                { text: "Do everything myself", score: 1 }
+            ]
+        },
+        {
+            id: 15,
+            question: "🌅 Long-term planning?",
+            options: [
+                { text: "Quarterly reviews", score: 3 },
+                { text: "Yearly goals", score: 2 },
+                { text: "No long-term plans", score: 1 }
+            ]
+        }
+    ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let timeLeft = 600;
+
+        function updateTimer() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent =
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            if(timeLeft <= 0) showResults();
+            else timeLeft--;
+        }
+
+        function showQuestion() {
+            const quiz = document.getElementById('quiz-container');
+            const q = questions[currentQuestion];
+
+            quiz.innerHTML = `
+                <h1>⏱ Productivity Quiz</h1>
+                <div class="progress-bar">
+                    <div class="progress" style="width: ${(currentQuestion/questions.length)*100}%"></div>
+                </div>
+                <div class="question-card">
+                    <h3>${q.question}</h3>
+                    ${q.options.map(opt => `
+                        <div class="option" onclick="selectAnswer(${opt.score})">
+                            ${opt.text}
+                        </div>
+                    `).join('')}
+                </div>
+                <p>Question ${currentQuestion + 1} of ${questions.length}</p>
+            `;
+        }
+
+        function selectAnswer(selectedScore) {
+            score += selectedScore;
+            currentQuestion++;
+
+            if(currentQuestion < questions.length) {
+                showQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            const quiz = document.getElementById('quiz-container');
+            let result;
+
+            if(score >= questions.length * 3 * 0.8) {
+                result = { type: 'Time Management Pro 🚀', color: '#2ecc71' };
+            } else if(score >= questions.length * 3 * 0.5) {
+                result = { type: 'Balanced Achiever ⚖️', color: '#f1c40f' };
+            } else {
+                result = { type: 'Improvement Seeker 🌱', color: '#e74c3c' };
+            }
+
+            quiz.innerHTML = `
+                <div class="result-card">
+                    <div class="badge" style="background: ${result.color}">
+                        ${result.type.split(' ').pop()}
+                    </div>
+                    <h2>${result.type}</h2>
+                    <p>Score: ${score}/${questions.length * 3}</p>
+                    <div class="recommendations">
+                        <h3>Recommendations:</h3>
+                        <ul>
+                            <li>⏱️ Time blocking techniques</li>
+                            <li>📅 Weekly priority planning</li>
+                            <li>🔄 Regular progress reviews</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Start quiz
+        showQuestion();
+        setInterval(updateTimer, 1000);
+    </script>
+</body>
+</html>
