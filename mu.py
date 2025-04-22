@@ -22,9 +22,9 @@ app.secret_key = 'your_secret_key_here'
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'jaisurya6909j@gmail.com'
+app.config['MAIL_USERNAME'] = 'dhinesh00.m@gmail.com'
 app.config['MAIL_PASSWORD'] = 'dxhl tixx utks blga'
-app.config['MAIL_DEFAULT_SENDER'] = 'jaisurya6909j@gmail.com'
+app.config['MAIL_DEFAULT_SENDER'] = 'dhinesh00.m@gmail.com'
 mail = Mail(app)
 
 # Database Configuration
@@ -36,7 +36,7 @@ DB_CONFIG = {
 }
 
 # Email Configuration
-SENDER_EMAIL = "jaisurya6909j@gmail.com"
+SENDER_EMAIL = "dhinesh00.m@gmail.com"
 SENDER_PASSWORD = "dxhl tixx utks blga"
 
 # AI Configuration
